@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getStorage, daysRemaining } from "@block66/shared";
 import type { BlockedSite } from "@block66/shared";
 
-const DASHBOARD_URL = "http://localhost:5173/dashboard";
+const DASHBOARD_URL = "https://block66-extension-wl3m.vercel.app/dashboard";
 
 export function MiniStatus() {
   const [sites, setSites] = useState<BlockedSite[]>([]);

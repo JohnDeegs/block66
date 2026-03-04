@@ -45,6 +45,7 @@
   "externally_connectable": {
     "matches": [
       "https://block66.com/*",
+      "https://block66-extension-wl3m.vercel.app/*",
       "http://localhost:*/*"
     ]
   }
