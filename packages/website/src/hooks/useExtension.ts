@@ -9,7 +9,7 @@ import type {
 // In development, load the unpacked extension and copy its ID from chrome://extensions
 // then set it here (or via an env variable).
 // For production, this will be the published extension's ID.
-const EXTENSION_ID = import.meta.env.VITE_EXTENSION_ID as string | undefined;
+const EXTENSION_ID = (import.meta.env.VITE_EXTENSION_ID as string | undefined) ?? "agjjmbpbgeciohkbklpmajhmghdjhggh";
 
 export type ExtensionStatus =
   | "detecting"
