@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:website",
+  "buildCommand": "cd packages/website && npx vite build",
   "outputDirectory": "packages/website/dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
