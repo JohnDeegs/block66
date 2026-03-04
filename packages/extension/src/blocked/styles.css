@@ -1,0 +1,343 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --surface2: #242432;
+  --accent: #6c63ff;
+  --accent-hover: #8880ff;
+  --danger: #ff4d6d;
+  --success: #4ade80;
+  --text: #e8e8f0;
+  --text-muted: #888899;
+  --border: #2e2e40;
+  --radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Focus Screen --- */
+.focus-screen {
+  text-align: center;
+  max-width: 520px;
+  padding: 2rem;
+  width: 100%;
+}
+
+.focus-screen .logo {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+}
+
+.focus-screen .domain {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.focus-screen .days-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.focus-screen .days-number {
+  font-size: 5rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.focus-screen .days-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.focus-screen .message {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.focus-screen .study-quote {
+  border-left: 3px solid var(--accent);
+  margin: 0 auto 2rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  max-width: 420px;
+}
+
+.focus-screen .study-quote p {
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 0.4rem;
+}
+
+.focus-screen .study-quote footer {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.focus-screen .study-quote a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.focus-screen .study-quote a:hover {
+  text-decoration: underline;
+}
+
+.focus-screen .emergency-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.focus-screen .emergency-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+/* --- Trivia Gate --- */
+.trivia-gate {
+  max-width: 600px;
+  width: 100%;
+  padding: 2rem;
+}
+
+.trivia-gate h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.trivia-gate .progress {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.trivia-gate .question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.trivia-gate .question-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.trivia-gate .answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.trivia-gate .answer-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.95rem;
+  transition: all 0.15s;
+}
+
+.trivia-gate .answer-btn:hover {
+  border-color: var(--accent);
+  background: rgba(108, 99, 255, 0.1);
+}
+
+.trivia-gate .back-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.trivia-gate .loading,
+.trivia-gate .error {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 3rem 0;
+}
+
+.trivia-gate .retry-btn {
+  margin-top: 1rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* --- Wrong Answer Screen --- */
+.wrong-answer {
+  max-width: 560px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+}
+
+.wrong-answer .icon { font-size: 3rem; margin-bottom: 1rem; }
+.wrong-answer h2 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+.wrong-answer .subtitle { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+.wrong-answer .question-recap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.wrong-answer .question-recap .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.wrong-answer .question-recap .correct {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.wrong-answer .streak-banner {
+  background: rgba(108, 99, 255, 0.12);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  color: var(--accent-hover);
+}
+
+.wrong-answer .streak-banner strong { font-size: 1.2rem; }
+
+.wrong-answer .choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.wrong-answer .choice-btn {
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.15s;
+}
+
+.wrong-answer .choice-btn.retry {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.wrong-answer .choice-btn.retry:hover { background: var(--accent-hover); }
+
+.wrong-answer .choice-btn.wait {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.wrong-answer .choice-btn.wait:hover { border-color: var(--text-muted); }
+
+/* --- Penalty Screen --- */
+.penalty-screen {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.penalty-card {
+  max-width: 400px;
+  width: 100%;
+  padding: 2.5rem 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.penalty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.penalty-card h2 { margin-bottom: 0.5rem; }
+.penalty-card p { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+.penalty-timer {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.penalty-note {
+  font-size: 0.9rem;
+  color: var(--success);
+  margin-bottom: 1.5rem;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.back-btn:hover { border-color: var(--text-muted); color: var(--text); }
+
+.loading { color: var(--text-muted); }
+
+.not-blocked {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.not-blocked button {
+  margin-top: 1rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+}

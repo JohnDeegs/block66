@@ -1,0 +1,98 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --accent: #6c63ff;
+  --text: #e8e8f0;
+  --text-muted: #888899;
+  --border: #2e2e40;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  width: 280px;
+  min-height: 80px;
+}
+
+.mini-status {
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.dashboard-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.dashboard-btn:hover { text-decoration: underline; }
+
+.empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.site-list {
+  list-style: none;
+  margin-bottom: 1rem;
+}
+
+.site-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.site-item:last-child { border-bottom: none; }
+
+.site-domain {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.site-days {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  margin-left: 0.5rem;
+}
+
+.add-btn {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.add-btn:hover { opacity: 0.9; }
