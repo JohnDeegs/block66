@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:website",
   "outputDirectory": "packages/website/dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
