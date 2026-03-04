@@ -15,6 +15,7 @@
     "dev:website": "npm run dev -w packages/website"
   },
   "devDependencies": {
+    "sharp": "^0.34.5",
     "typescript": "^5.6.3"
   }
 }
