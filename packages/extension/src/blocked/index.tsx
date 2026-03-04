@@ -1,7 +1,7 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import browser from "webextension-polyfill";
-import { getStorage, daysRemaining, normalizeDomain } from "@block66/shared";
+import { getStorage, daysRemaining, normalizeDomain, isValidDomain } from "@block66/shared";
 import type { StorageData } from "@block66/shared";
 import { FocusScreen } from "./components/FocusScreen";
 import { TriviaGate } from "./components/TriviaGate";
@@ -67,6 +67,15 @@ function BlockedApp() {
   }, [view, storage, domain]);
 
   if (!storage) return <div className="loading">Loading...</div>;
+
+  if (!isValidDomain(domain)) {
+    return (
+      <div className="not-blocked">
+        <p>Invalid domain parameter.</p>
+        <button onClick={() => window.history.back()}>Go back</button>
+      </div>
+    );
+  }
 
   const site = storage.blockedSites[domain];
   if (!site) {

@@ -32,8 +32,7 @@
   "permissions": [
     "storage",
     "alarms",
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
+    "declarativeNetRequest"
   ],
   "host_permissions": ["<all_urls>"],
   "web_accessible_resources": [
