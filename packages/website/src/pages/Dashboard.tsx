@@ -17,9 +17,14 @@ export function Dashboard() {
           <button className="nav-logo" onClick={() => navigate("/")}>
             Block66
           </button>
-          <button className="btn btn-ghost" onClick={refresh} title="Refresh data">
-            ↻ Refresh
-          </button>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button className="btn btn-ghost" onClick={() => navigate("/docs")}>
+              How it works
+            </button>
+            <button className="btn btn-ghost" onClick={refresh} title="Refresh data">
+              ↻ Refresh
+            </button>
+          </div>
         </div>
       </nav>
 
