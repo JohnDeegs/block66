@@ -8,6 +8,8 @@ import {
   PENALTY_DURATION_MS,
   type ExtensionMessage,
   type ExtensionResponse,
+  normalizeDomain,
+  isValidDomain,
 } from "@block66/shared";
 import {
   getStorage,
@@ -86,7 +88,10 @@ async function handleExternalMessage(
     }
 
     case "ADD_SITE": {
-      const { domain } = msg;
+      const domain = normalizeDomain(msg.domain);
+      if (!isValidDomain(domain)) {
+        return { ok: false, error: "Invalid domain" };
+      }
       const startTimestamp = Date.now();
       await addBlockedSite({ domain, startTimestamp, emergencyUseCount: 0 });
       await addBlockRule(domain);
@@ -95,7 +100,10 @@ async function handleExternalMessage(
     }
 
     case "GRANT_EMERGENCY": {
-      const { domain } = msg;
+      const domain = normalizeDomain(msg.domain);
+      if (!isValidDomain(domain)) {
+        return { ok: false, error: "Invalid domain" };
+      }
       const expiresAt = Date.now() + EMERGENCY_DURATION_MS;
       await incrementEmergencyCount(domain);
       await setEmergencyAccess(domain, expiresAt);
@@ -105,7 +113,10 @@ async function handleExternalMessage(
     }
 
     case "APPLY_PENALTY": {
-      const { domain } = msg;
+      const domain = normalizeDomain(msg.domain);
+      if (!isValidDomain(domain)) {
+        return { ok: false, error: "Invalid domain" };
+      }
       const expiresAt = Date.now() + PENALTY_DURATION_MS;
       await setPenalty(domain, expiresAt);
       await schedulePenaltyAlarm(domain);
