@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 
-const API_URL = "https://block66-api-production.up.railway.app";
+const API_URL = "https://caring-playfulness-production-b410.up.railway.app";
 const TOKEN_KEY = "block66_api_token";
 
 async function getToken(): Promise<string | null> {
