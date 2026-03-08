@@ -5,7 +5,8 @@
   "workspaces": [
     "packages/shared",
     "packages/extension",
-    "packages/website"
+    "packages/website",
+    "packages/api"
   ],
   "scripts": {
     "build": "npm run build -w packages/shared && npm run build -w packages/extension && npm run build -w packages/website",

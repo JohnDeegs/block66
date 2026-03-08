@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useExtension } from "../hooks/useExtension";
+import { useExtension, clearToken } from "../hooks/useExtension";
 import { ExtensionGate } from "../components/ExtensionGate";
 import { AddSiteForm } from "../components/AddSiteForm";
 import { SiteRow } from "../components/SiteRow";
@@ -24,6 +24,13 @@ export function Dashboard() {
             <button className="btn btn-ghost" onClick={refresh} title="Refresh data">
               ↻ Refresh
             </button>
+            <button
+              className="btn btn-ghost"
+              onClick={() => { clearToken(); navigate("/login"); }}
+              title="Sign out"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </nav>
@@ -31,11 +38,11 @@ export function Dashboard() {
       <main className="container dashboard-main">
         {status === "detecting" && (
           <div className="detecting">
-            <p>Connecting to extension...</p>
+            <p>Loading...</p>
           </div>
         )}
 
-        {(status === "not-installed" || status === "error") && (
+        {(status === "not-authenticated" || status === "error") && (
           <ExtensionGate />
         )}
 

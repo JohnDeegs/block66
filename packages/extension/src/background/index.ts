@@ -3,23 +3,13 @@ import {
   ALARM_EXPIRE_PREFIX,
   ALARM_EMERGENCY_PREFIX,
   ALARM_PENALTY_PREFIX,
-  BLOCK_DURATION_MS,
   EMERGENCY_DURATION_MS,
   PENALTY_DURATION_MS,
   type ExtensionMessage,
   type ExtensionResponse,
+  type StorageData,
   normalizeDomain,
   isValidDomain,
-} from "@block66/shared";
-import {
-  getStorage,
-  addBlockedSite,
-  removeBlockedSite,
-  clearEmergencyAccess,
-  clearPenalty,
-  setEmergencyAccess,
-  setPenalty,
-  incrementEmergencyCount,
 } from "@block66/shared";
 import { addBlockRule, removeBlockRule } from "@block66/shared";
 import {
@@ -27,6 +17,48 @@ import {
   scheduleEmergencyAlarm,
   schedulePenaltyAlarm,
 } from "@block66/shared";
+import { apiGet, apiPost, setToken } from "../api.js";
+
+// Suppress unused import warnings — these are kept for alarm scheduling
+void EMERGENCY_DURATION_MS;
+void PENALTY_DURATION_MS;
+
+// --- Sync block rules from API ---
+
+async function syncFromApi(): Promise<void> {
+  let data: StorageData;
+  try {
+    data = (await apiGet("/sites")) as StorageData;
+  } catch {
+    // No token or API unreachable — clear all rules so nothing is orphaned
+    const existing = await browser.declarativeNetRequest.getDynamicRules();
+    if (existing.length > 0) {
+      await browser.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: existing.map((r) => r.id),
+        addRules: [],
+      } as Parameters<typeof browser.declarativeNetRequest.updateDynamicRules>[0]);
+    }
+    return;
+  }
+
+  const { blockedSites, emergencyAccess } = data;
+
+  // Remove all existing dynamic rules, then re-apply from API state
+  const existing = await browser.declarativeNetRequest.getDynamicRules();
+  await browser.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: existing.map((r) => r.id),
+    addRules: [],
+  } as Parameters<typeof browser.declarativeNetRequest.updateDynamicRules>[0]);
+
+  const nowMs = Date.now();
+  for (const domain of Object.keys(blockedSites)) {
+    const hasActiveEmergency =
+      emergencyAccess[domain] && emergencyAccess[domain].expiresAt > nowMs;
+    if (!hasActiveEmergency) {
+      await addBlockRule(domain);
+    }
+  }
+}
 
 // --- Alarm handler ---
 
@@ -36,25 +68,33 @@ browser.alarms.onAlarm.addListener(async (alarm) => {
   if (name.startsWith(ALARM_EXPIRE_PREFIX)) {
     const domain = name.slice(ALARM_EXPIRE_PREFIX.length);
     await removeBlockRule(domain);
-    await removeBlockedSite(domain);
     return;
   }
 
   if (name.startsWith(ALARM_EMERGENCY_PREFIX)) {
     const domain = name.slice(ALARM_EMERGENCY_PREFIX.length);
-    await clearEmergencyAccess(domain);
     await addBlockRule(domain);
     return;
   }
 
-  if (name.startsWith(ALARM_PENALTY_PREFIX)) {
-    const domain = name.slice(ALARM_PENALTY_PREFIX.length);
-    await clearPenalty(domain);
-    return;
-  }
+  // ALARM_PENALTY_PREFIX — no rule change needed
 });
 
-// --- External message handler (website <-> extension bridge) ---
+// --- Internal message handler (blocked page → background) ---
+
+browser.runtime.onMessage.addListener(
+  (message: unknown, _sender, sendResponse) => {
+    const msg = message as ExtensionMessage;
+    handleInternalMessage(msg)
+      .then((res) => sendResponse(res))
+      .catch((err) =>
+        sendResponse({ ok: false, error: String(err) } as ExtensionResponse)
+      );
+    return true;
+  }
+);
+
+// --- External message handler (website → extension: SET_TOKEN only) ---
 
 browser.runtime.onMessageExternal.addListener(
   (message: unknown, _sender, sendResponse) => {
@@ -64,49 +104,29 @@ browser.runtime.onMessageExternal.addListener(
       .catch((err) =>
         sendResponse({ ok: false, error: String(err) } as ExtensionResponse)
       );
-    return true; // keep message channel open for async response
+    return true;
   }
 );
 
 async function handleExternalMessage(
   msg: ExtensionMessage
 ): Promise<ExtensionResponse> {
+  if (msg.type === "SET_TOKEN") {
+    await setToken(msg.token);
+    await syncFromApi();
+    return { ok: true };
+  }
+  return { ok: false, error: "Unknown external message type" };
+}
+
+async function handleInternalMessage(
+  msg: ExtensionMessage
+): Promise<ExtensionResponse> {
   switch (msg.type) {
-    case "GET_DATA": {
-      const data = await getStorage();
-      return { ok: true, data };
-    }
-
-    case "REMOVE_SITE": {
-      const { domain } = msg;
-      await browser.alarms.clear(`${ALARM_EXPIRE_PREFIX}${domain}`);
-      await browser.alarms.clear(`${ALARM_EMERGENCY_PREFIX}${domain}`);
-      await browser.alarms.clear(`${ALARM_PENALTY_PREFIX}${domain}`);
-      await removeBlockRule(domain);
-      await removeBlockedSite(domain);
-      return { ok: true };
-    }
-
-    case "ADD_SITE": {
-      const domain = normalizeDomain(msg.domain);
-      if (!isValidDomain(domain)) {
-        return { ok: false, error: "Invalid domain" };
-      }
-      const startTimestamp = Date.now();
-      await addBlockedSite({ domain, startTimestamp, emergencyUseCount: 0 });
-      await addBlockRule(domain);
-      await scheduleExpireAlarm(domain, startTimestamp);
-      return { ok: true };
-    }
-
     case "GRANT_EMERGENCY": {
       const domain = normalizeDomain(msg.domain);
-      if (!isValidDomain(domain)) {
-        return { ok: false, error: "Invalid domain" };
-      }
-      const expiresAt = Date.now() + EMERGENCY_DURATION_MS;
-      await incrementEmergencyCount(domain);
-      await setEmergencyAccess(domain, expiresAt);
+      if (!isValidDomain(domain)) return { ok: false, error: "Invalid domain" };
+      await apiPost(`/sites/${domain}/emergency`);
       await removeBlockRule(domain);
       await scheduleEmergencyAlarm(domain);
       return { ok: true };
@@ -114,18 +134,13 @@ async function handleExternalMessage(
 
     case "APPLY_PENALTY": {
       const domain = normalizeDomain(msg.domain);
-      if (!isValidDomain(domain)) {
-        return { ok: false, error: "Invalid domain" };
-      }
-      const expiresAt = Date.now() + PENALTY_DURATION_MS;
-      await setPenalty(domain, expiresAt);
+      if (!isValidDomain(domain)) return { ok: false, error: "Invalid domain" };
+      await apiPost(`/sites/${domain}/penalty`);
       await schedulePenaltyAlarm(domain);
       return { ok: true };
     }
 
     case "RETRY_TRIVIA": {
-      // No storage changes needed — just acknowledge so the blocked page
-      // can re-fetch new trivia questions.
       return { ok: true };
     }
 
@@ -135,49 +150,47 @@ async function handleExternalMessage(
   }
 }
 
-// --- Alarm reconciliation on install / startup ---
+// --- Reconcile alarms + sync rules on startup / install ---
 
 async function reconcileAlarms(): Promise<void> {
-  const { blockedSites, emergencyAccess, penalties } = await getStorage();
+  let data: StorageData;
+  try {
+    data = (await apiGet("/sites")) as StorageData;
+  } catch {
+    return;
+  }
+
+  const { blockedSites, emergencyAccess, penalties } = data;
   const existingAlarms = await browser.alarms.getAll();
   const existingNames = new Set(existingAlarms.map((a) => a.name));
+  const nowMs = Date.now();
+  const blockDurationMs = 66 * 24 * 60 * 60 * 1000;
 
   for (const [domain, site] of Object.entries(blockedSites)) {
     const alarmName = `${ALARM_EXPIRE_PREFIX}${domain}`;
     if (!existingNames.has(alarmName)) {
-      const expireAt = site.startTimestamp + BLOCK_DURATION_MS;
-      if (expireAt > Date.now()) {
-        await browser.alarms.create(alarmName, { when: expireAt });
-      } else {
-        // Block expired while extension was inactive — clean up now
-        await removeBlockRule(domain);
-        await removeBlockedSite(domain);
+      const expireAt = site.startTimestamp + blockDurationMs;
+      if (expireAt > nowMs) {
+        await scheduleExpireAlarm(domain, site.startTimestamp);
       }
     }
   }
 
   for (const [domain, record] of Object.entries(emergencyAccess)) {
     const alarmName = `${ALARM_EMERGENCY_PREFIX}${domain}`;
-    if (!existingNames.has(alarmName)) {
-      if (record.expiresAt > Date.now()) {
-        await browser.alarms.create(alarmName, { when: record.expiresAt });
-      } else {
-        await clearEmergencyAccess(domain);
-        await addBlockRule(domain);
-      }
+    if (!existingNames.has(alarmName) && record.expiresAt > nowMs) {
+      await scheduleEmergencyAlarm(domain);
     }
   }
 
   for (const [domain, record] of Object.entries(penalties)) {
     const alarmName = `${ALARM_PENALTY_PREFIX}${domain}`;
-    if (!existingNames.has(alarmName)) {
-      if (record.expiresAt > Date.now()) {
-        await browser.alarms.create(alarmName, { when: record.expiresAt });
-      } else {
-        await clearPenalty(domain);
-      }
+    if (!existingNames.has(alarmName) && record.expiresAt > nowMs) {
+      await schedulePenaltyAlarm(domain);
     }
   }
+
+  await syncFromApi();
 }
 
 browser.runtime.onInstalled.addListener(reconcileAlarms);
