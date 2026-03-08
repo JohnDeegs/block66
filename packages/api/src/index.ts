@@ -8,16 +8,15 @@ import { requireAuth } from "./auth.js";
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
-const allowedOrigins = [
-  "https://block66-extension-wl3m.vercel.app",
-  "https://block66.com",
-];
-
 app.use(cors({
   origin: (origin, cb) => {
     // Allow requests with no origin (e.g. curl, extension background SW)
     if (!origin) return cb(null, true);
-    if (allowedOrigins.includes(origin) || /^http:\/\/localhost(:\d+)?$/.test(origin)) {
+    if (
+      /^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin) ||
+      /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+      origin === "https://block66.com"
+    ) {
       return cb(null, true);
     }
     cb(new Error("Not allowed by CORS"));
