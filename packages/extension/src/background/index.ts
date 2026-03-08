@@ -11,7 +11,7 @@ import {
   normalizeDomain,
   isValidDomain,
 } from "@block66/shared";
-import { addBlockRule, removeBlockRule } from "@block66/shared";
+import { addBlockRule, removeBlockRule, setStorage } from "@block66/shared";
 import {
   scheduleExpireAlarm,
   scheduleEmergencyAlarm,
@@ -41,7 +41,10 @@ async function syncFromApi(): Promise<void> {
     return;
   }
 
-  const { blockedSites, emergencyAccess } = data;
+  const { blockedSites, emergencyAccess, penalties } = data;
+
+  // Mirror API state to local storage so the blocked page can read it
+  await setStorage({ blockedSites, emergencyAccess, penalties });
 
   // Remove all existing dynamic rules, then re-apply from API state
   const existing = await browser.declarativeNetRequest.getDynamicRules();
