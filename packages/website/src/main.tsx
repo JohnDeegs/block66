@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
 import { Docs } from "./pages/Docs";
+import { Login } from "./pages/Login";
+import { Signup } from "./pages/Signup";
 import "./styles.css";
 
 createRoot(document.getElementById("root")!).render(
