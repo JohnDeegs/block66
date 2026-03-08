@@ -1,39 +1,26 @@
-const CHROME_STORE_URL = "#"; // Replace after publishing
-const FIREFOX_STORE_URL = "#";
+import { useNavigate } from "react-router-dom";
 
 export function ExtensionGate() {
+  const navigate = useNavigate();
   return (
     <div className="gate-wrap">
       <div className="gate-card">
-        <div className="gate-icon">🔌</div>
-        <h2>Extension not detected</h2>
+        <div className="gate-icon">🔒</div>
+        <h2>Sign in to continue</h2>
         <p>
-          Block66 needs the browser extension to manage your blocklist. Install
-          it once, then come back here for the full dashboard.
+          Block66 uses your account to keep your block list in sync across
+          devices. Sign in or create a free account to access your dashboard.
         </p>
         <div className="gate-btns">
-          <a className="btn btn-primary btn-lg" href={CHROME_STORE_URL}>
-            Add to Chrome
-          </a>
-          <a className="btn btn-ghost btn-lg" href={FIREFOX_STORE_URL}>
-            Firefox Add-on
-          </a>
+          <button className="btn btn-primary btn-lg" onClick={() => navigate("/login")}>
+            Sign in
+          </button>
+          <button className="btn btn-ghost btn-lg" onClick={() => navigate("/signup")}>
+            Create account
+          </button>
         </div>
         <p className="gate-note">
-          Already installed?{" "}
-          <button
-            className="link-btn"
-            onClick={() => window.location.reload()}
-          >
-            Refresh the page
-          </button>{" "}
-          or check that the extension is enabled.
-        </p>
-        <p className="gate-dev-note">
-          <strong>Dev mode:</strong> Set{" "}
-          <code>VITE_EXTENSION_ID</code> in{" "}
-          <code>packages/website/.env.local</code> to your unpacked extension
-          ID from <code>chrome://extensions</code>.
+          Your block list is private and stored securely. No one else can see it.
         </p>
       </div>
     </div>

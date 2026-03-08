@@ -56,7 +56,8 @@ export type ExtensionMessage =
   | { type: "REMOVE_SITE"; domain: string }
   | { type: "GRANT_EMERGENCY"; domain: string }
   | { type: "APPLY_PENALTY"; domain: string }
-  | { type: "RETRY_TRIVIA"; domain: string };
+  | { type: "RETRY_TRIVIA"; domain: string }
+  | { type: "SET_TOKEN"; token: string };
 
 export type ExtensionResponse =
   | { ok: true; data: StorageData }
