@@ -31,9 +31,9 @@ const features = [
     desc: "You can't undo a block until the 66 days are up. That's the point.",
   },
   {
-    icon: "🔐",
-    title: "100% Private",
-    desc: "Everything lives on your device. No accounts, no cloud, no tracking.",
+    icon: "🔄",
+    title: "Cross-Device Sync",
+    desc: "Your block list syncs across all your devices. Log in anywhere and your rules follow you.",
   },
 ];
 
@@ -52,7 +52,7 @@ const faqs = [
   },
   {
     q: "Does it work on mobile?",
-    a: "V1 is a desktop browser extension for Chrome and Firefox. Mobile support is planned for V2.",
+    a: "V1 is a desktop browser extension for Chrome and Firefox. Mobile support is planned for a future release.",
   },
 ];
 
@@ -96,7 +96,7 @@ export function Landing() {
               Firefox Add-on
             </a>
           </div>
-          <p className="hero-note">No account required · All data stays on your device</p>
+          <p className="hero-note">Free account · Syncs across all your devices</p>
         </div>
 
         {/* Demo card */}
@@ -173,7 +173,7 @@ export function Landing() {
         <div className="container cta-inner">
           <h2>Ready to actually change?</h2>
           <p>
-            Free. Private. No account. Just 66 days between you and a new habit.
+            Free. Takes 30 seconds to set up. Just 66 days between you and a new habit.
           </p>
           <a className="btn btn-primary btn-lg" href={CHROME_STORE_URL}>
             Install Block66 for Chrome
@@ -185,7 +185,7 @@ export function Landing() {
         <div className="container footer-inner">
           <span className="nav-logo">Block66</span>
           <span className="footer-note">
-            Built on science. Lally et al. (2010). All data stored locally.
+            Built on science. Lally et al. (2010).
           </span>
         </div>
       </footer>
