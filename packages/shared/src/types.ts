@@ -57,7 +57,8 @@ export type ExtensionMessage =
   | { type: "GRANT_EMERGENCY"; domain: string }
   | { type: "APPLY_PENALTY"; domain: string }
   | { type: "RETRY_TRIVIA"; domain: string }
-  | { type: "SET_TOKEN"; token: string };
+  | { type: "SET_TOKEN"; token: string }
+  | { type: "SYNC" };
 
 export type ExtensionResponse =
   | { ok: true; data: StorageData }

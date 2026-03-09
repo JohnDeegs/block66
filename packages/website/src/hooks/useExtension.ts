@@ -45,6 +45,14 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+function notifyExtensionSync(): void {
+  if (typeof chrome !== "undefined" && chrome.runtime && EXTENSION_ID) {
+    chrome.runtime
+      .sendMessage(EXTENSION_ID, { type: "SYNC" })
+      .catch(() => {});
+  }
+}
+
 async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const token = getToken();
   return fetch(`${API_URL}${path}`, {
@@ -123,6 +131,7 @@ export function useExtension(): UseExtensionReturn {
           msg.type === "GRANT_EMERGENCY" ||
           msg.type === "APPLY_PENALTY")
       ) {
+        notifyExtensionSync();
         await refresh();
       }
       return res;

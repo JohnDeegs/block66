@@ -124,6 +124,10 @@ async function handleExternalMessage(
     await syncFromApi();
     return { ok: true };
   }
+  if (msg.type === "SYNC") {
+    await syncFromApi();
+    return { ok: true };
+  }
   return { ok: false, error: "Unknown external message type" };
 }
 
