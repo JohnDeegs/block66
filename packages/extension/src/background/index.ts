@@ -68,6 +68,11 @@ async function syncFromApi(): Promise<void> {
 browser.alarms.onAlarm.addListener(async (alarm) => {
   const { name } = alarm;
 
+  if (name === "block66-sync") {
+    await syncFromApi();
+    return;
+  }
+
   if (name.startsWith(ALARM_EXPIRE_PREFIX)) {
     const domain = name.slice(ALARM_EXPIRE_PREFIX.length);
     await removeBlockRule(domain);
@@ -196,5 +201,11 @@ async function reconcileAlarms(): Promise<void> {
   await syncFromApi();
 }
 
-browser.runtime.onInstalled.addListener(reconcileAlarms);
-browser.runtime.onStartup.addListener(reconcileAlarms);
+browser.runtime.onInstalled.addListener(async () => {
+  await reconcileAlarms();
+  browser.alarms.create("block66-sync", { periodInMinutes: 5 });
+});
+browser.runtime.onStartup.addListener(async () => {
+  await reconcileAlarms();
+  browser.alarms.create("block66-sync", { periodInMinutes: 5 });
+});
