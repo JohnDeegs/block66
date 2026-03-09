@@ -6,6 +6,10 @@ export const sitesRouter = Router();
 
 const now = () => Date.now();
 
+function isValidDomain(domain: string): boolean {
+  return /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/.test(domain);
+}
+
 // Lazily delete expired emergency_access and penalty rows, return clean StorageData
 sitesRouter.get("/", async (req: AuthRequest, res: Response) => {
   const uid = req.userId!;
@@ -85,6 +89,7 @@ sitesRouter.post("/", async (req: AuthRequest, res: Response) => {
 sitesRouter.delete("/:domain", async (req: AuthRequest, res: Response) => {
   const uid = req.userId!;
   const { domain } = req.params;
+  if (!isValidDomain(domain)) { res.status(400).json({ error: "Invalid domain" }); return; }
   await pool.query("DELETE FROM blocked_sites WHERE user_id = $1 AND domain = $2", [uid, domain]);
   await pool.query("DELETE FROM emergency_access WHERE user_id = $1 AND domain = $2", [uid, domain]);
   await pool.query("DELETE FROM penalties WHERE user_id = $1 AND domain = $2", [uid, domain]);
@@ -94,6 +99,7 @@ sitesRouter.delete("/:domain", async (req: AuthRequest, res: Response) => {
 sitesRouter.post("/:domain/emergency", async (req: AuthRequest, res: Response) => {
   const uid = req.userId!;
   const { domain } = req.params;
+  if (!isValidDomain(domain)) { res.status(400).json({ error: "Invalid domain" }); return; }
   const expiresAt = now() + 60 * 60 * 1000; // 60 min
 
   await pool.query(
@@ -113,6 +119,7 @@ sitesRouter.post("/:domain/emergency", async (req: AuthRequest, res: Response) =
 sitesRouter.post("/:domain/penalty", async (req: AuthRequest, res: Response) => {
   const uid = req.userId!;
   const { domain } = req.params;
+  if (!isValidDomain(domain)) { res.status(400).json({ error: "Invalid domain" }); return; }
   const expiresAt = now() + 5 * 60 * 1000; // 5 min
 
   await pool.query(

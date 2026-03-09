@@ -3,7 +3,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { pool } from "./db.js";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "dev-secret-change-in-production";
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const SALT_ROUNDS = 12;
 
 export interface AuthRequest extends Request {
@@ -37,6 +40,10 @@ authRouter.post("/signup", async (req, res) => {
     res.status(400).json({ error: "Password must be at least 8 characters" });
     return;
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    res.status(400).json({ error: "Invalid email address" });
+    return;
+  }
   try {
     const hash = await bcrypt.hash(password, SALT_ROUNDS);
     const result = await pool.query<{ id: string }>(
@@ -67,7 +74,10 @@ authRouter.post("/login", async (req, res) => {
     [email.toLowerCase().trim()]
   );
   const user = result.rows[0];
-  if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+  // Always run bcrypt.compare to prevent timing-based email enumeration
+  const DUMMY_HASH = "$2b$12$invalidhashusedfortimingprotectiononly0000000000000000";
+  const valid = await bcrypt.compare(password, user?.password_hash ?? DUMMY_HASH);
+  if (!user || !valid) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }

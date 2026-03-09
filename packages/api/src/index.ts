@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { initDb } from "./db.js";
 import { authRouter } from "./auth.js";
 import { sitesRouter } from "./sites.js";
@@ -7,6 +9,16 @@ import { requireAuth } from "./auth.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
+
+app.use(helmet());
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/auth", authLimiter);
 
 app.use(cors({
   origin: (origin, cb) => {
