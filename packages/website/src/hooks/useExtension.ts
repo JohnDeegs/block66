@@ -25,11 +25,20 @@ export function getToken(): string | null {
 export function saveToken(token: string): void {
   localStorage.setItem(TOKEN_KEY, token);
   // Forward the token to the extension if it's installed
-  try {
-    if (typeof chrome !== "undefined" && chrome.runtime && EXTENSION_ID) {
-      chrome.runtime.sendMessage(EXTENSION_ID, { type: "SET_TOKEN", token });
-    }
-  } catch {}
+  if (typeof chrome !== "undefined" && chrome.runtime && EXTENSION_ID) {
+    const send = () =>
+      chrome.runtime
+        .sendMessage(EXTENSION_ID, { type: "SET_TOKEN", token })
+        .catch(() => {
+          // Service worker may have been inactive — retry once after a short delay
+          setTimeout(() => {
+            chrome.runtime
+              .sendMessage(EXTENSION_ID, { type: "SET_TOKEN", token })
+              .catch(() => {});
+          }, 1000);
+        });
+    send();
+  }
 }
 
 export function clearToken(): void {
